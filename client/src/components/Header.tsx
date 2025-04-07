@@ -45,17 +45,17 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link 
-              href="/collections"
+              href="/"
               className={`text-foreground hover:text-accent transition-colors text-sm uppercase tracking-wider font-medium ${
-                location.startsWith("/collections") ? "text-accent" : ""
+                location === "/" ? "text-accent" : ""
               }`}
             >
-              Shop
+              Home
             </Link>
             <Link 
               href="/collections"
               className={`text-foreground hover:text-accent transition-colors text-sm uppercase tracking-wider font-medium ${
-                location === "/collections" ? "text-accent" : ""
+                location.startsWith("/collections") ? "text-accent" : ""
               }`}
             >
               Collections
@@ -69,12 +69,12 @@ export default function Header() {
               About
             </Link>
             <Link 
-              href="/journal"
+              href="/contact"
               className={`text-foreground hover:text-accent transition-colors text-sm uppercase tracking-wider font-medium ${
-                location === "/journal" ? "text-accent" : ""
+                location === "/contact" ? "text-accent" : ""
               }`}
             >
-              Journal
+              Contact
             </Link>
           </nav>
           
@@ -116,11 +116,11 @@ export default function Header() {
       >
         <nav className="flex flex-col px-4 py-4 space-y-4">
           <Link 
-            href="/collections"
+            href="/"
             className="text-foreground py-2 border-b border-gray-100 uppercase tracking-wider text-sm"
             onClick={closeMenu}
           >
-            Shop
+            Home
           </Link>
           <Link 
             href="/collections"
@@ -137,11 +137,11 @@ export default function Header() {
             About
           </Link>
           <Link 
-            href="/journal"
+            href="/contact"
             className="text-foreground py-2 uppercase tracking-wider text-sm"
             onClick={closeMenu}
           >
-            Journal
+            Contact
           </Link>
         </nav>
       </div>

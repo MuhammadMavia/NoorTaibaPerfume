@@ -5,6 +5,11 @@ import CollectionHighlight from "@/components/CollectionHighlight";
 import ProductShowcase from "@/components/ProductShowcase";
 import StoryCTA from "@/components/StoryCTA";
 import Newsletter from "@/components/Newsletter";
+import BenefitsSection from "@/components/BenefitsSection";
+import CategoryGrid from "@/components/CategoryGrid";
+import BestSellers from "@/components/BestSellers";
+import TestimonialCarousel from "@/components/TestimonialCarousel";
+import InstagramGallery from "@/components/InstagramGallery";
 import { Helmet } from "react-helmet";
 
 export default function Home() {
@@ -15,7 +20,14 @@ export default function Home() {
         <meta name="description" content="Discover luxury Arabian fragrances crafted with the finest ingredients. Shop our collection of exclusive perfumes at Noor e Taiba Perfumers." />
       </Helmet>
       
-      <HeroSection />
+      <HeroSection 
+        title="Discover the Art of Luxury Perfumery"
+        subtitle="Exquisite fragrances that capture the essence of Arabian tradition with modern elegance"
+        imageUrl="https://images.unsplash.com/photo-1593483592239-795639d8a7bb?auto=format&fit=crop&q=80&w=1920&h=1080"
+        buttonText="Shop Collection"
+        buttonLink="/collections"
+      />
+      
       <div className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
@@ -28,10 +40,15 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+      <BenefitsSection />
+      <CategoryGrid />
       <FeaturedProduct />
+      <BestSellers />
       <CollectionHighlight />
-      <ProductShowcase />
+      <TestimonialCarousel />
       <StoryCTA />
+      <InstagramGallery />
       <Newsletter />
     </>
   );

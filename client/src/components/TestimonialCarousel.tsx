@@ -1,4 +1,11 @@
-import React, { useRef, useState } from "react";
+import React from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface Testimonial {
   id: number;
@@ -14,141 +21,100 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    content: "Arabian Nights is truly exceptional. The fragrance evolves beautifully throughout the day and has impressive longevity. I receive compliments every time I wear it.",
+    content: "The fragrances from Noor e Taiba are truly exceptional. The attention to detail and quality of their perfumes is unmatched. My favorite is their oud collection which transports me back to memories of my travels.",
     rating: 5,
     author: {
-      name: "Sarah J.",
-      title: "Loyal Customer",
-      avatar: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&q=80&w=100&h=100"
+      name: "Sarah Johnson",
+      title: "Fragrance Enthusiast",
+      avatar: "https://randomuser.me/api/portraits/women/12.jpg"
     }
   },
   {
     id: 2,
-    content: "The Rose Elixir perfume is unlike any floral fragrance I've encountered. It's sophisticated, not overpowering, and lasts all day. The packaging is also absolutely stunning.",
+    content: "I've been collecting luxury perfumes for years, and Noor e Taiba stands out for their authentic scents and lasting power. Their customer service is equally impressive - personalized and attentive.",
     rating: 5,
     author: {
-      name: "Michael T.",
-      title: "Verified Buyer",
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=100&h=100"
+      name: "Michael Robinson",
+      title: "Perfume Collector",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg"
     }
   },
   {
     id: 3,
-    content: "I've been collecting perfumes for years, and Noor e Taiba fragrances stand out for their quality and uniqueness. Amber Oud has become my signature scent for special occasions.",
-    rating: 4.5,
+    content: "As someone who appreciates the art of perfumery, I can say with confidence that Noor e Taiba crafts some of the most sophisticated and complex fragrances I've encountered. Each scent tells a story.",
+    rating: 5,
     author: {
-      name: "Aisha R.",
-      title: "Fragrance Enthusiast",
-      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=100&h=100"
+      name: "Amina Khan",
+      title: "Beauty Blogger",
+      avatar: "https://randomuser.me/api/portraits/women/65.jpg"
+    }
+  },
+  {
+    id: 4,
+    content: "The gift set I purchased from Noor e Taiba was beautifully presented and made an excellent impression. The recipient was thrilled with both the packaging and the exquisite fragrances inside.",
+    rating: 5,
+    author: {
+      name: "David Chen",
+      title: "Loyal Customer",
+      avatar: "https://randomuser.me/api/portraits/men/67.jpg"
     }
   }
 ];
 
 export default function TestimonialCarousel() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  
-  const scrollToNext = () => {
-    if (containerRef.current) {
-      const newIndex = Math.min(activeIndex + 1, testimonials.length - 1);
-      setActiveIndex(newIndex);
-      const cardWidth = containerRef.current.offsetWidth;
-      containerRef.current.scrollTo({
-        left: newIndex * (cardWidth + 24), // 24px is the gap
-        behavior: 'smooth'
-      });
-    }
-  };
-  
-  const scrollToPrev = () => {
-    if (containerRef.current) {
-      const newIndex = Math.max(activeIndex - 1, 0);
-      setActiveIndex(newIndex);
-      const cardWidth = containerRef.current.offsetWidth;
-      containerRef.current.scrollTo({
-        left: newIndex * (cardWidth + 24), // 24px is the gap
-        behavior: 'smooth'
-      });
-    }
-  };
-  
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<i key={`full-${i}`} className="ri-star-fill"></i>);
-    }
-    
-    if (hasHalfStar) {
-      stars.push(<i key="half" className="ri-star-half-fill"></i>);
-    }
-    
-    const emptyStars = 5 - stars.length;
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<i key={`empty-${i}`} className="ri-star-line"></i>);
-    }
-    
-    return stars;
-  };
-
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-16 bg-secondary">
       <div className="container mx-auto px-4">
-        <h2 className="font-playfair text-3xl md:text-4xl text-primary text-center mb-16">Customer Experiences</h2>
+        <div className="text-center mb-12">
+          <h2 className="font-playfair text-3xl md:text-4xl text-primary mb-4">What Our Customers Say</h2>
+          <p className="text-foreground/70 max-w-2xl mx-auto">
+            Discover why fragrance enthusiasts choose Noor e Taiba
+          </p>
+          <div className="w-16 h-1 bg-accent mx-auto mt-6"></div>
+        </div>
         
-        <div className="relative">
-          <div 
-            ref={containerRef}
-            className="overflow-x-auto scrollbar-hide product-card-container"
+        <div className="max-w-4xl mx-auto">
+          <Carousel 
+            opts={{
+              align: "center",
+              loop: true
+            }}
+            className="w-full"
           >
-            <div className="flex space-x-6" style={{ width: "fit-content" }}>
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="w-80 md:w-96 bg-secondary p-8 flex-shrink-0">
-                  <div className="flex items-center text-accent mb-4">
-                    {renderStars(testimonial.rating)}
-                  </div>
-                  <p className="text-foreground italic mb-6 leading-relaxed">
-                    "{testimonial.content}"
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
+            <CarouselContent>
+              {testimonials.map(testimonial => (
+                <CarouselItem key={testimonial.id} className="md:basis-1/1">
+                  <div className="bg-white p-8 shadow-sm flex flex-col items-center text-center h-full">
+                    <div className="mb-6">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`text-2xl ${i < testimonial.rating ? "text-amber-400" : "text-gray-300"}`}>
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <blockquote className="text-foreground/80 italic mb-8 leading-relaxed">
+                      "{testimonial.content}"
+                    </blockquote>
+                    
+                    <div className="mt-auto">
                       <img 
-                        src={testimonial.author.avatar}
-                        alt={`${testimonial.author.name} Avatar`}
-                        className="w-full h-full object-cover"
+                        src={testimonial.author.avatar} 
+                        alt={testimonial.author.name}
+                        className="w-16 h-16 rounded-full mx-auto mb-3 object-cover"
                       />
-                    </div>
-                    <div>
-                      <p className="font-medium text-primary">{testimonial.author.name}</p>
-                      <p className="text-foreground/70 text-sm">{testimonial.author.title}</p>
+                      <p className="font-playfair text-lg text-primary">{testimonial.author.name}</p>
+                      <p className="text-foreground/60 text-sm">{testimonial.author.title}</p>
                     </div>
                   </div>
-                </div>
+                </CarouselItem>
               ))}
+            </CarouselContent>
+            <div className="hidden md:flex justify-between absolute inset-0 items-center pointer-events-none">
+              <CarouselPrevious className="pointer-events-auto ml-4 bg-white/80 hover:bg-white" />
+              <CarouselNext className="pointer-events-auto mr-4 bg-white/80 hover:bg-white" />
             </div>
-          </div>
-          
-          <button 
-            className={`absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-md flex items-center justify-center text-primary hover:text-accent transition-colors z-10 ${
-              activeIndex === 0 ? 'hidden' : 'hidden md:flex'
-            }`}
-            onClick={scrollToPrev}
-            aria-label="Previous testimonial"
-          >
-            <i className="ri-arrow-left-s-line text-xl"></i>
-          </button>
-          
-          <button 
-            className={`absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-md flex items-center justify-center text-primary hover:text-accent transition-colors z-10 ${
-              activeIndex === testimonials.length - 1 ? 'hidden' : 'hidden md:flex'
-            }`}
-            onClick={scrollToNext}
-            aria-label="Next testimonial"
-          >
-            <i className="ri-arrow-right-s-line text-xl"></i>
-          </button>
+          </Carousel>
         </div>
       </div>
     </section>
