@@ -260,11 +260,14 @@ export default function ProductShowcase() {
           {isLoading ? (
             // Loading skeletons
             Array(4).fill(0).map((_, i) => (
-              <div key={i} className="bg-white p-4 animate-pulse">
-                <div className="w-full h-80 bg-secondary mb-4"></div>
-                <div className="h-6 bg-secondary w-2/3 mx-auto mb-2"></div>
-                <div className="h-4 bg-secondary w-1/2 mx-auto mb-2"></div>
-                <div className="h-4 bg-secondary w-1/4 mx-auto"></div>
+              <div key={i} className="bg-white shadow-sm animate-pulse">
+                <div className="aspect-square bg-secondary"></div>
+                <div className="p-5">
+                  <div className="h-3 bg-secondary w-1/3 mb-3"></div>
+                  <div className="h-5 bg-secondary w-3/4 mb-2"></div>
+                  <div className="h-4 bg-secondary w-1/4 mb-4"></div>
+                  <div className="h-8 bg-secondary w-full mt-3"></div>
+                </div>
               </div>
             ))
           ) : sortedProducts.length > 0 ? (
@@ -274,32 +277,40 @@ export default function ProductShowcase() {
               const collectionName = product.collections?.edges[0]?.node.title || "";
               
               return (
-                <div key={product.id} className="bg-white p-4 group hover-scale">
-                  <Link href={`/product/${product.handle}`} className="block relative overflow-hidden">
-                    <img 
-                      src={firstImage?.url || "https://images.unsplash.com/photo-1593467685670-3261b0f3f522?auto=format&fit=crop&q=80&w=400&h=500"}
-                      alt={firstImage?.altText || product.title} 
-                      className="w-full h-80 object-cover mb-4"
-                    />
-                    <div className="absolute top-0 right-0 m-2 p-2 bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                      <i className="ri-heart-line text-lg text-primary"></i>
+                <div key={product.id} className="group transition-all duration-300 hover:shadow-lg">
+                  <div className="overflow-hidden relative">
+                    <Link href={`/product/${product.handle}`} className="block">
+                      <div className="aspect-square overflow-hidden">
+                        <img 
+                          src={firstImage?.url || "https://images.unsplash.com/photo-1593467685670-3261b0f3f522?auto=format&fit=crop&q=80&w=600&h=600"}
+                          alt={firstImage?.altText || product.title} 
+                          className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110"
+                        />
+                      </div>
+                    </Link>
+                    <div className="absolute top-3 right-3 z-10">
+                      <button className="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity">
+                        <i className="ri-heart-line text-primary"></i>
+                      </button>
                     </div>
+                  </div>
+                  
+                  <div className="p-5 bg-white">
+                    <p className="text-foreground/60 text-xs tracking-wider uppercase mb-2">{collectionName}</p>
+                    <Link href={`/product/${product.handle}`}>
+                      <h3 className="font-playfair text-lg font-medium text-primary mb-1 hover:text-accent transition-colors">
+                        {product.title}
+                      </h3>
+                    </Link>
+                    <p className="text-accent font-medium mb-3">
+                      {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
+                    </p>
                     <button 
-                      className="absolute bottom-0 left-0 right-0 bg-accent text-white py-3 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-wider text-sm"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAddToCart(product);
-                      }}
+                      className="w-full py-2.5 bg-primary text-white uppercase tracking-wider text-xs font-medium hover:bg-accent transition-colors mt-2"
+                      onClick={() => handleAddToCart(product)}
                     >
                       Add to Cart
                     </button>
-                  </Link>
-                  <div className="text-center mt-4">
-                    <h3 className="font-playfair text-xl text-primary">{product.title}</h3>
-                    <p className="text-foreground/70 text-sm mb-2">{collectionName}</p>
-                    <p className="text-accent font-medium">
-                      {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
-                    </p>
                   </div>
                 </div>
               );
