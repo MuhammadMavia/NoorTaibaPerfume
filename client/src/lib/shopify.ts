@@ -710,7 +710,8 @@ export async function customerCreate(
   email: string,
   password: string
 ): Promise<{ customerUserErrors: any[]; customerAccessToken?: { accessToken: string; expiresAt: string } }> {
-  const mutation = `
+  // First, create customer account
+  const createMutation = `
     mutation customerCreate($input: CustomerCreateInput!) {
       customerCreate(input: $input) {
         customer {
@@ -724,22 +725,17 @@ export async function customerCreate(
           field
           message
         }
-        customerAccessToken {
-          accessToken
-          expiresAt
-        }
       }
     }
   `;
   
-  const response = await shopifyFetch<{
+  const createResponse = await shopifyFetch<{
     customerCreate: {
       customer: Customer | null;
       customerUserErrors: any[];
-      customerAccessToken: { accessToken: string; expiresAt: string } | null;
     }
   }>({
-    query: mutation,
+    query: createMutation,
     variables: {
       input: {
         firstName,
@@ -751,7 +747,46 @@ export async function customerCreate(
     },
   });
   
-  const { customerCreate: { customerAccessToken, customerUserErrors } } = response;
+  const { customerCreate: { customerUserErrors } } = createResponse;
+  
+  // If there are errors during account creation, return them
+  if (customerUserErrors && customerUserErrors.length > 0) {
+    return { customerUserErrors };
+  }
+  
+  // If account creation is successful, generate access token (login)
+  const loginMutation = `
+    mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+      customerAccessTokenCreate(input: $input) {
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+  
+  const loginResponse = await shopifyFetch<{
+    customerAccessTokenCreate: {
+      customerAccessToken: { accessToken: string; expiresAt: string } | null;
+      customerUserErrors: any[];
+    }
+  }>({
+    query: loginMutation,
+    variables: {
+      input: {
+        email,
+        password,
+      },
+    },
+  });
+  
+  const { customerAccessTokenCreate: { customerAccessToken, customerUserErrors: loginErrors } } = loginResponse;
   
   if (customerAccessToken) {
     localStorage.setItem(CUSTOMER_ACCESS_TOKEN_KEY, customerAccessToken.accessToken);
@@ -762,7 +797,7 @@ export async function customerCreate(
   }
   
   return {
-    customerUserErrors,
+    customerUserErrors: loginErrors,
     customerAccessToken: customerAccessToken || undefined,
   };
 }
