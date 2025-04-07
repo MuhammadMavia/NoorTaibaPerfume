@@ -80,6 +80,10 @@ export interface Cart {
   id: string;
   checkoutUrl: string;
   totalQuantity: number;
+  discountCodes?: {
+    code: string;
+    applicable: boolean;
+  }[];
   lines: {
     edges: {
       node: CartLine;
@@ -89,6 +93,7 @@ export interface Cart {
     subtotalAmount: MoneyV2;
     totalAmount: MoneyV2;
     totalTaxAmount: MoneyV2;
+    discountAmount?: MoneyV2;
   };
 }
 
@@ -152,6 +157,10 @@ export interface ShopifyCart {
   id: string;
   checkoutUrl: string;
   totalQuantity: number;
+  discountCodes?: {
+    code: string;
+    applicable: boolean;
+  }[];
   lines: {
     edges: {
       node: CartLine;
@@ -161,6 +170,7 @@ export interface ShopifyCart {
     subtotalAmount: MoneyV2;
     totalAmount: MoneyV2;
     totalTaxAmount: MoneyV2;
+    discountAmount?: MoneyV2;
   };
 }
 

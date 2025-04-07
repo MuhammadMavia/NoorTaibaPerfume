@@ -155,7 +155,7 @@ export default function CartDrawer() {
                   {cart.cost.subtotalAmount.currencyCode} {parseFloat(cart.cost.subtotalAmount.amount).toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between mb-4">
+              <div className="flex justify-between mb-2">
                 <span className="text-foreground">Taxes</span>
                 <span className="font-medium">
                   {cart.cost.totalTaxAmount?.currencyCode || cart.cost.subtotalAmount.currencyCode} {
@@ -165,6 +165,31 @@ export default function CartDrawer() {
                   }
                 </span>
               </div>
+              
+              {/* Discount Amount Display */}
+              {cart.cost.discountAmount && parseFloat(cart.cost.discountAmount.amount) > 0 && (
+                <div className="flex justify-between mb-2 text-green-600">
+                  <span>Discount</span>
+                  <span className="font-medium">
+                    -{cart.cost.discountAmount.currencyCode} {parseFloat(cart.cost.discountAmount.amount).toFixed(2)}
+                  </span>
+                </div>
+              )}
+              
+              {/* Active Discount Codes */}
+              {cart.discountCodes && cart.discountCodes.length > 0 && cart.discountCodes.some(code => code.applicable) && (
+                <div className="mb-2 text-sm text-green-600">
+                  <div className="flex flex-wrap gap-1">
+                    {cart.discountCodes
+                      .filter(code => code.applicable)
+                      .map((code, index) => (
+                        <span key={index} className="bg-green-50 px-2 py-0.5 rounded inline-flex items-center">
+                          <i className="ri-coupon-line mr-1"></i> {code.code}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              )}
               
               {/* Promo Code Section */}
               <div className="mb-4 pt-2 border-t border-gray-100">
