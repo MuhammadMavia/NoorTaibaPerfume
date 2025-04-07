@@ -5,6 +5,12 @@ import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import Collections from "./pages/Collections";
 import Layout from "./components/Layout";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Account from "./pages/Account";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import { CartProvider } from "./context/CartContext";
 
 function Router() {
   return (
@@ -13,6 +19,11 @@ function Router() {
       <Route path="/product/:id" component={ProductDetail} />
       <Route path="/collections" component={Collections} />
       <Route path="/collections/:id" component={Collections} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/account" component={Account} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -20,12 +31,12 @@ function Router() {
 
 function App() {
   return (
-    <>
+    <CartProvider>
       <Layout>
         <Router />
       </Layout>
       <Toaster />
-    </>
+    </CartProvider>
   );
 }
 

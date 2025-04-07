@@ -91,3 +91,75 @@ export interface Cart {
     totalTaxAmount: MoneyV2;
   };
 }
+
+export interface CustomerAddress {
+  id: string;
+  address1: string;
+  address2: string | null;
+  city: string;
+  country: string;
+  province: string | null;
+  zip: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+}
+
+export interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  email: string;
+  phone: string | null;
+  defaultAddress: CustomerAddress | null;
+  addresses: {
+    edges: {
+      node: CustomerAddress;
+    }[];
+  };
+}
+
+export interface OrderLineItem {
+  title: string;
+  quantity: number;
+  originalTotalPrice: MoneyV2;
+  variant: {
+    title: string;
+    image: {
+      url: string;
+      altText: string | null;
+    } | null;
+    price: MoneyV2;
+  } | null;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: number;
+  processedAt: string;
+  financialStatus: string | null;
+  fulfillmentStatus: string | null;
+  currentTotalPrice: MoneyV2;
+  lineItems: {
+    edges: {
+      node: OrderLineItem;
+    }[];
+  };
+}
+
+export interface ShopifyCart {
+  id: string;
+  checkoutUrl: string;
+  totalQuantity: number;
+  lines: {
+    edges: {
+      node: CartLine;
+    }[];
+  };
+  cost: {
+    subtotalAmount: MoneyV2;
+    totalAmount: MoneyV2;
+    totalTaxAmount: MoneyV2;
+  };
+}

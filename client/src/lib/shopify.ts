@@ -1,4 +1,4 @@
-import { Product, Collection, Cart } from "@/types/shopify";
+import { Product, Collection, Cart, Customer, Order } from "@/types/shopify";
 
 // Shopify Storefront API endpoint
 const SHOPIFY_DOMAIN = import.meta.env.VITE_SHOPIFY_DOMAIN || '';
@@ -8,15 +8,31 @@ const SHOPIFY_API_VERSION = '2023-10'; // Update to the current version
 // Base URL for the Shopify Storefront API
 const shopifyApiUrl = `https://${SHOPIFY_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 
+// Customer access token storage key
+export const CUSTOMER_ACCESS_TOKEN_KEY = 'shopify_customer_access_token';
+
 // Helper function to make GraphQL requests to Shopify
 async function shopifyFetch<T>({ query, variables }: { query: string; variables?: any }): Promise<T> {
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+    };
+
+    // Add customer access token if it exists and is not already provided in variables
+    if (!variables?.customerAccessToken) {
+      const customerAccessToken = localStorage.getItem(CUSTOMER_ACCESS_TOKEN_KEY);
+      if (customerAccessToken && query.includes('customer')) {
+        variables = {
+          ...variables,
+          customerAccessToken,
+        };
+      }
+    }
+
     const response = await fetch(shopifyApiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-      },
+      headers,
       body: JSON.stringify({ query, variables }),
     });
 
@@ -683,4 +699,432 @@ export async function searchProducts(query: string): Promise<Product[]> {
   });
   
   return response.products.edges.map(({ node }) => node);
+}
+
+// Customer Authentication Functions
+
+// Customer Sign Up / Create Account
+export async function customerCreate(
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string
+): Promise<{ customerUserErrors: any[]; customerAccessToken?: { accessToken: string; expiresAt: string } }> {
+  const mutation = `
+    mutation customerCreate($input: CustomerCreateInput!) {
+      customerCreate(input: $input) {
+        customer {
+          id
+          firstName
+          lastName
+          email
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+      }
+    }
+  `;
+  
+  const response = await shopifyFetch<{
+    customerCreate: {
+      customer: Customer | null;
+      customerUserErrors: any[];
+      customerAccessToken: { accessToken: string; expiresAt: string } | null;
+    }
+  }>({
+    query: mutation,
+    variables: {
+      input: {
+        firstName,
+        lastName,
+        email,
+        password,
+        acceptsMarketing: true,
+      },
+    },
+  });
+  
+  const { customerCreate: { customerAccessToken, customerUserErrors } } = response;
+  
+  if (customerAccessToken) {
+    localStorage.setItem(CUSTOMER_ACCESS_TOKEN_KEY, customerAccessToken.accessToken);
+    
+    // Set token expiry
+    const expiresAt = new Date(customerAccessToken.expiresAt).getTime();
+    localStorage.setItem(`${CUSTOMER_ACCESS_TOKEN_KEY}_expires_at`, expiresAt.toString());
+  }
+  
+  return {
+    customerUserErrors,
+    customerAccessToken: customerAccessToken || undefined,
+  };
+}
+
+// Customer Login
+export async function customerLogin(
+  email: string,
+  password: string
+): Promise<{ customerUserErrors: any[]; customerAccessToken?: { accessToken: string; expiresAt: string } }> {
+  const mutation = `
+    mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+      customerAccessTokenCreate(input: $input) {
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+  
+  const response = await shopifyFetch<{
+    customerAccessTokenCreate: {
+      customerAccessToken: { accessToken: string; expiresAt: string } | null;
+      customerUserErrors: any[];
+    }
+  }>({
+    query: mutation,
+    variables: {
+      input: {
+        email,
+        password,
+      },
+    },
+  });
+  
+  const { customerAccessTokenCreate: { customerAccessToken, customerUserErrors } } = response;
+  
+  if (customerAccessToken) {
+    localStorage.setItem(CUSTOMER_ACCESS_TOKEN_KEY, customerAccessToken.accessToken);
+    
+    // Set token expiry
+    const expiresAt = new Date(customerAccessToken.expiresAt).getTime();
+    localStorage.setItem(`${CUSTOMER_ACCESS_TOKEN_KEY}_expires_at`, expiresAt.toString());
+  }
+  
+  return {
+    customerUserErrors,
+    customerAccessToken: customerAccessToken || undefined,
+  };
+}
+
+// Customer Logout
+export function customerLogout(): void {
+  localStorage.removeItem(CUSTOMER_ACCESS_TOKEN_KEY);
+  localStorage.removeItem(`${CUSTOMER_ACCESS_TOKEN_KEY}_expires_at`);
+}
+
+// Check if customer is logged in
+export function isLoggedIn(): boolean {
+  const token = localStorage.getItem(CUSTOMER_ACCESS_TOKEN_KEY);
+  const expiresAt = localStorage.getItem(`${CUSTOMER_ACCESS_TOKEN_KEY}_expires_at`);
+  
+  if (!token || !expiresAt) {
+    return false;
+  }
+  
+  const now = new Date().getTime();
+  const expiry = parseInt(expiresAt, 10);
+  
+  if (now >= expiry) {
+    // Token is expired, clean up
+    customerLogout();
+    return false;
+  }
+  
+  return true;
+}
+
+// Get current customer
+export async function getCurrentCustomer(): Promise<Customer | null> {
+  if (!isLoggedIn()) {
+    return null;
+  }
+  
+  const customerAccessToken = localStorage.getItem(CUSTOMER_ACCESS_TOKEN_KEY);
+  
+  const query = `
+    query getCustomer($customerAccessToken: String!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        id
+        firstName
+        lastName
+        email
+        phone
+        displayName
+        defaultAddress {
+          id
+          address1
+          address2
+          city
+          country
+          province
+          zip
+          firstName
+          lastName
+          phone
+        }
+        addresses(first: 5) {
+          edges {
+            node {
+              id
+              address1
+              address2
+              city
+              country
+              province
+              zip
+              firstName
+              lastName
+              phone
+            }
+          }
+        }
+      }
+    }
+  `;
+  
+  try {
+    const response = await shopifyFetch<{ customer: Customer | null }>({
+      query,
+      variables: { customerAccessToken },
+    });
+    
+    return response.customer;
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    // If there's an error (like invalid token), logout
+    customerLogout();
+    return null;
+  }
+}
+
+// Get customer orders
+export async function getCustomerOrders(first: number = 10): Promise<Order[] | null> {
+  if (!isLoggedIn()) {
+    return null;
+  }
+  
+  const customerAccessToken = localStorage.getItem(CUSTOMER_ACCESS_TOKEN_KEY);
+  
+  const query = `
+    query getCustomerOrders($customerAccessToken: String!, $first: Int!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        orders(first: $first) {
+          edges {
+            node {
+              id
+              orderNumber
+              processedAt
+              financialStatus
+              fulfillmentStatus
+              currentTotalPrice {
+                amount
+                currencyCode
+              }
+              lineItems(first: 10) {
+                edges {
+                  node {
+                    title
+                    quantity
+                    originalTotalPrice {
+                      amount
+                      currencyCode
+                    }
+                    variant {
+                      title
+                      image {
+                        url
+                        altText
+                      }
+                      price {
+                        amount
+                        currencyCode
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  
+  try {
+    const response = await shopifyFetch<{ 
+      customer: { 
+        orders: { 
+          edges: { 
+            node: Order 
+          }[] 
+        } 
+      } | null 
+    }>({
+      query,
+      variables: { customerAccessToken, first },
+    });
+    
+    if (!response.customer) {
+      return null;
+    }
+    
+    return response.customer.orders.edges.map(({ node }) => node);
+  } catch (error) {
+    console.error('Error fetching customer orders:', error);
+    return null;
+  }
+}
+
+// Request password reset
+export async function requestPasswordReset(email: string): Promise<{ customerUserErrors: any[] }> {
+  const mutation = `
+    mutation customerRecover($email: String!) {
+      customerRecover(email: $email) {
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+  
+  const response = await shopifyFetch<{
+    customerRecover: {
+      customerUserErrors: any[];
+    }
+  }>({
+    query: mutation,
+    variables: { email },
+  });
+  
+  return {
+    customerUserErrors: response.customerRecover.customerUserErrors,
+  };
+}
+
+// Reset password with reset token (from email link)
+export async function resetPassword(
+  resetToken: string,
+  password: string
+): Promise<{ customerUserErrors: any[]; customerAccessToken?: { accessToken: string; expiresAt: string } }> {
+  const mutation = `
+    mutation customerResetByUrl($resetToken: String!, $password: String!) {
+      customerResetByUrl(resetToken: $resetToken, password: $password) {
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+  
+  const response = await shopifyFetch<{
+    customerResetByUrl: {
+      customerAccessToken: { accessToken: string; expiresAt: string } | null;
+      customerUserErrors: any[];
+    }
+  }>({
+    query: mutation,
+    variables: { resetToken, password },
+  });
+  
+  const { customerResetByUrl: { customerAccessToken, customerUserErrors } } = response;
+  
+  if (customerAccessToken) {
+    localStorage.setItem(CUSTOMER_ACCESS_TOKEN_KEY, customerAccessToken.accessToken);
+    
+    // Set token expiry
+    const expiresAt = new Date(customerAccessToken.expiresAt).getTime();
+    localStorage.setItem(`${CUSTOMER_ACCESS_TOKEN_KEY}_expires_at`, expiresAt.toString());
+  }
+  
+  return {
+    customerUserErrors,
+    customerAccessToken: customerAccessToken || undefined,
+  };
+}
+
+// Update customer information
+export async function updateCustomer(
+  customerAccessToken: string,
+  customer: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    password?: string;
+    acceptsMarketing?: boolean;
+  }
+): Promise<{ customerUserErrors: any[]; customer?: Customer }> {
+  const mutation = `
+    mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+      customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+        customer {
+          id
+          firstName
+          lastName
+          email
+          phone
+          displayName
+        }
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+  `;
+  
+  const response = await shopifyFetch<{
+    customerUpdate: {
+      customer: Customer | null;
+      customerAccessToken: { accessToken: string; expiresAt: string } | null;
+      customerUserErrors: any[];
+    }
+  }>({
+    query: mutation,
+    variables: {
+      customerAccessToken,
+      customer,
+    },
+  });
+  
+  const { customerUpdate: { customer: updatedCustomer, customerAccessToken: newToken, customerUserErrors } } = response;
+  
+  if (newToken) {
+    localStorage.setItem(CUSTOMER_ACCESS_TOKEN_KEY, newToken.accessToken);
+    
+    // Set token expiry
+    const expiresAt = new Date(newToken.expiresAt).getTime();
+    localStorage.setItem(`${CUSTOMER_ACCESS_TOKEN_KEY}_expires_at`, expiresAt.toString());
+  }
+  
+  return {
+    customerUserErrors,
+    customer: updatedCustomer || undefined,
+  };
 }
