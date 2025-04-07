@@ -163,3 +163,21 @@ export interface ShopifyCart {
     totalTaxAmount: MoneyV2;
   };
 }
+
+export interface Discount {
+  id: string;
+  code: string;
+  title: string;
+  summary: string;
+  startDate: string;
+  endDate: string | null;
+  discountPercentage: number | null;
+  discountAmount: MoneyV2 | null;
+  productIds: string[];
+  collectionIds: string[];
+  products?: {
+    edges: {
+      node: Product;
+    }[];
+  };
+}

@@ -1,4 +1,4 @@
-import { Product, Collection, Cart, Customer, Order } from "@/types/shopify";
+import { Product, Collection, Cart, Customer, Order, Discount } from "@/types/shopify";
 
 // Shopify Storefront API endpoint
 const SHOPIFY_DOMAIN = import.meta.env.VITE_SHOPIFY_DOMAIN || '';
@@ -1162,4 +1162,65 @@ export async function updateCustomer(
     customerUserErrors,
     customer: updatedCustomer || undefined,
   };
+}
+
+// Fetch active discount codes/promotions
+export async function getActiveDiscounts(): Promise<Discount[]> {
+  const query = `
+    query GetActiveDiscounts {
+      discountCodes(first: 10) {
+        edges {
+          node {
+            id
+            code
+            title: description
+            summary
+            startDate
+            endDate
+            discountPercentage: percentageValue
+            discountAmount: fixedAmountValue {
+              amount
+              currencyCode
+            }
+            productIds: productIds
+            collectionIds: collectionIds
+            products(first: 4) {
+              edges {
+                node {
+                  id
+                  title
+                  handle
+                  priceRange {
+                    minVariantPrice {
+                      amount
+                      currencyCode
+                    }
+                  }
+                  images(first: 1) {
+                    edges {
+                      node {
+                        id
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await shopifyFetch<{ discountCodes: { edges: { node: Discount }[] } }>({ query });
+    return response.discountCodes.edges.map(({ node }) => node);
+  } catch (error) {
+    console.error('Error fetching discounts:', error);
+    return [];
+  }
 }
