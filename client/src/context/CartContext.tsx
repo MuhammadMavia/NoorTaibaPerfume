@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Cart as ShopifyCart, CartLine } from "@/types/shopify";
 import { useToast } from "@/hooks/use-toast";
-import { createCart, getCart, addToCart, updateCartItems, removeFromCart } from "@/lib/shopify";
+import { createCart, getCart, addToCart, updateCartItems, removeFromCart, applyDiscountCode } from "@/lib/shopify";
 
 interface CartContextType {
   cart: ShopifyCart | null;
@@ -14,6 +14,7 @@ interface CartContextType {
   addItem: (id: string, quantity: number) => Promise<void>;
   updateItem: (id: string, quantity: number) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
+  applyPromoCode: (code: string) => Promise<{ success: boolean, message: string }>;
   cartLines: CartLine[];
 }
 
@@ -160,6 +161,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Apply promo code to cart
+  const applyPromoCode = async (code: string): Promise<{ success: boolean, message: string }> => {
+    if (!cart) {
+      return { 
+        success: false, 
+        message: "No active cart found. Please try refreshing the page." 
+      };
+    }
+    
+    try {
+      setIsLoading(true);
+      const { cart: updatedCart, discountError } = await applyDiscountCode(cart.id, code);
+      
+      if (discountError) {
+        return { 
+          success: false, 
+          message: discountError 
+        };
+      }
+      
+      setCart(updatedCart);
+      return { 
+        success: true, 
+        message: "Promo code applied successfully!" 
+      };
+    } catch (error) {
+      console.error('Error applying promo code:', error);
+      return { 
+        success: false, 
+        message: "Error applying promo code. Please try again." 
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -173,6 +210,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addItem,
         updateItem,
         removeItem,
+        applyPromoCode,
         cartLines
       }}
     >

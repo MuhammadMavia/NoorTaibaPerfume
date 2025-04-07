@@ -1164,6 +1164,86 @@ export async function updateCustomer(
   };
 }
 
+// Apply discount code to cart
+export async function applyDiscountCode(cartId: string, discountCode: string): Promise<{ cart: Cart, discountError?: string }> {
+  const query = `
+    mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]) {
+      cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+        cart {
+          id
+          checkoutUrl
+          totalQuantity
+          discountCodes {
+            code
+            applicable
+          }
+          lines(first: 100) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    priceV2: price {
+                      amount
+                      currencyCode
+                    }
+                    image {
+                      id
+                      url
+                      altText
+                      width
+                      height
+                    }
+                    product {
+                      handle
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cost {
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+            totalAmount {
+              amount
+              currencyCode
+            }
+            totalTaxAmount {
+              amount
+              currencyCode
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const response = await shopifyFetch<{ 
+    cartDiscountCodesUpdate: { 
+      cart: Cart, 
+      userErrors: { field: string, message: string }[] 
+    } 
+  }>({ 
+    query, 
+    variables: { cartId, discountCodes: [discountCode] } 
+  });
+  
+  const { cart, userErrors } = response.cartDiscountCodesUpdate;
+  const discountError = userErrors.length > 0 ? userErrors[0].message : undefined;
+  
+  return { cart, discountError };
+}
+
 // Fetch active discount codes/promotions
 export async function getActiveDiscounts(): Promise<Discount[]> {
   const query = `

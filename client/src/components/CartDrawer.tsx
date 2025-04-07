@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "wouter";
 import { useCart } from "@/context/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CartDrawer() {
   const { 
@@ -11,8 +12,13 @@ export default function CartDrawer() {
     cartLines, 
     isLoading,
     updateItem,
-    removeItem
+    removeItem,
+    applyPromoCode
   } = useCart();
+  
+  const { toast } = useToast();
+  const [promoCode, setPromoCode] = useState("");
+  const [applyingPromo, setApplyingPromo] = useState(false);
 
   // Function to increase item quantity
   const increaseQuantity = (lineId: string, currentQuantity: number) => {
@@ -159,6 +165,47 @@ export default function CartDrawer() {
                   }
                 </span>
               </div>
+              
+              {/* Promo Code Section */}
+              <div className="mb-4 pt-2 border-t border-gray-100">
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Promo code"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className="flex-grow border border-gray-200 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    disabled={applyingPromo || isLoading}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!promoCode.trim()) return;
+                      
+                      setApplyingPromo(true);
+                      const result = await applyPromoCode(promoCode.trim());
+                      setApplyingPromo(false);
+                      
+                      toast({
+                        title: result.success ? "Success" : "Error",
+                        description: result.message,
+                        variant: result.success ? "default" : "destructive"
+                      });
+                      
+                      if (result.success) {
+                        setPromoCode("");
+                      }
+                    }}
+                    disabled={applyingPromo || isLoading || !promoCode.trim()}
+                    className="ml-2 bg-primary hover:bg-primary/90 text-white p-2 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {applyingPromo ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+                <p className="text-xs text-foreground/60 mt-1">
+                  Enter a promo code to get discounts
+                </p>
+              </div>
+              
               <div className="flex justify-between text-lg font-medium mb-4">
                 <span className="text-primary">Total</span>
                 <span className="text-accent">
