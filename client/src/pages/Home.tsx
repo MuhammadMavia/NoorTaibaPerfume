@@ -27,7 +27,8 @@ export default function Home() {
         buttonText="Shop Collection"
         buttonLink="/collections"
       />
-      
+      <BestSellers />
+
       <div className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
@@ -44,11 +45,10 @@ export default function Home() {
       <BenefitsSection />
       <CategoryGrid />
       <FeaturedProduct />
-      <BestSellers />
       <CollectionHighlight />
-      <TestimonialCarousel />
-      <StoryCTA />
-      <InstagramGallery />
+      {/* <TestimonialCarousel /> */}
+      {/* <StoryCTA /> */}
+      {/* <InstagramGallery /> */}
       <Newsletter />
     </>
   );
