@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useCart } from "@/context/CartContext";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
   
-  // Temporary implementation
-  const totalItems = 0;
-  const toggleCart = () => {
-    console.log("Toggle cart clicked");
-  };
+  // Use Cart context
+  const { totalItems, toggleCart } = useCart();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

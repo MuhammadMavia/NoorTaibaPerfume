@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "@/lib/shopify";
 import { Product } from "@/types/shopify";
+import { useCart } from "@/context/CartContext";
 
 interface FilterOptions {
   price: string[];
@@ -35,10 +36,8 @@ export default function ProductShowcase() {
     queryFn: getAllProducts
   });
   
-  // Temporary workaround until context is fixed
-  const addItem = (merchandiseId: string, quantity: number) => {
-    console.log(`Added item ${merchandiseId} with quantity ${quantity}`);
-  };
+  // Use the Cart context
+  const { addItem } = useCart();
   
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);

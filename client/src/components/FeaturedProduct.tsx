@@ -1,135 +1,118 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "@/lib/shopify";
+import { Product } from "@/types/shopify";
 import { useCart } from "@/context/CartContext";
 
 export default function FeaturedProduct() {
-  const [quantity, setQuantity] = useState(1);
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ['/api/products'],
-    queryFn: getAllProducts
-  });
-  
+  // Use Cart context for adding items
   const { addItem } = useCart();
   
-  // Select the featured product (in a real app, this might be marked with a tag or metadata)
-  const featuredProduct = products.length > 0 ? products[0] : null;
-  
-  const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
-  
-  const increaseQuantity = () => {
-    setQuantity(quantity + 1);
-  };
-  
-  const handleAddToCart = () => {
-    if (featuredProduct) {
-      const variantId = featuredProduct.variants.edges[0]?.node.id;
-      if (variantId) {
-        addItem(variantId, quantity);
-      }
-    }
-  };
-  
+  const { data: products = [], isLoading, isError } = useQuery({
+    queryKey: ['/api/products/featured'],
+    queryFn: getAllProducts
+  });
+
+  // Select the first product as featured (in a real app, you might have a dedicated API endpoint for featured products)
+  const featuredProduct: Product | undefined = products[0];
+
+  // Handle loading state
   if (isLoading) {
     return (
-      <section className="py-16 md:py-24">
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16 animate-pulse">
-            <div className="lg:w-1/2 bg-secondary h-[600px]"></div>
-            <div className="lg:w-1/2 space-y-4">
-              <div className="h-4 bg-secondary w-1/4"></div>
-              <div className="h-10 bg-secondary w-3/4"></div>
-              <div className="h-4 bg-secondary w-1/2"></div>
-              <div className="h-20 bg-secondary w-full"></div>
-              <div className="h-12 bg-secondary w-full"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="h-[600px] bg-secondary animate-pulse"></div>
+            <div className="px-6 md:px-12 lg:px-16">
+              <div className="h-4 bg-secondary w-24 mb-1 animate-pulse"></div>
+              <div className="h-10 bg-secondary w-3/4 mb-6 animate-pulse"></div>
+              <div className="h-4 bg-secondary w-32 mb-6 animate-pulse"></div>
+              <div className="h-20 bg-secondary w-full mb-8 animate-pulse"></div>
+              <div className="h-8 bg-secondary w-24 mb-2 animate-pulse"></div>
+              <div className="h-4 bg-secondary w-48 mb-8 animate-pulse"></div>
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="h-12 bg-secondary w-40 animate-pulse"></div>
+                <div className="h-12 bg-secondary w-40 animate-pulse"></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
     );
   }
-  
-  if (!featuredProduct) {
-    return null;
+
+  // Handle error state or no products found
+  if (isError || !featuredProduct) {
+    return null; // Don't show featured section if there's an error or no products
   }
-  
-  const productImage = featuredProduct.images.edges[0]?.node;
+
+  // Extract product details from the featured product
+  const image = featuredProduct.images.edges[0]?.node;
   const price = featuredProduct.priceRange.minVariantPrice;
   const formattedPrice = `${price.currencyCode} ${parseFloat(price.amount).toFixed(2)}`;
+  
+  const handleAddToCart = () => {
+    const variantId = featuredProduct.variants.edges[0]?.node.id;
+    if (variantId) {
+      addItem(variantId, 1);
+    }
+  };
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-24 bg-white">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
-          <div className="lg:w-1/2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="h-[600px] bg-secondary relative">
             <img 
-              src={productImage?.url || "https://images.unsplash.com/photo-1623605931891-d5b95ee98459?auto=format&fit=crop&q=80&w=800&h=1000"}
-              alt={productImage?.altText || featuredProduct.title} 
-              className="w-full h-auto object-cover"
+              src={image?.url} 
+              alt={image?.altText || featuredProduct.title} 
+              className="w-full h-full object-cover"
             />
+            <div className="absolute top-4 left-4 bg-accent text-white px-4 py-1 text-sm uppercase tracking-wider">
+              Featured
+            </div>
           </div>
           
-          <div className="lg:w-1/2">
-            <span className="text-accent uppercase tracking-widest text-sm">Featured Product</span>
-            <h2 className="font-playfair text-3xl md:text-5xl text-primary mt-4 mb-4">{featuredProduct.title}</h2>
-            <p className="text-sm uppercase tracking-wider text-foreground/70 mb-6">Exclusive Limited Edition</p>
+          <div className="px-6 md:px-12 lg:px-16">
+            <h4 className="text-accent uppercase tracking-wider text-sm mb-1">Featured Product</h4>
+            <h2 className="font-playfair text-3xl md:text-4xl lg:text-5xl text-primary mb-6">{featuredProduct.title}</h2>
+            
+            <div className="flex items-center mb-6">
+              <div className="flex items-center text-accent">
+                <i className="ri-star-fill mr-1"></i>
+                <i className="ri-star-fill mr-1"></i>
+                <i className="ri-star-fill mr-1"></i>
+                <i className="ri-star-fill mr-1"></i>
+                <i className="ri-star-half-fill"></i>
+              </div>
+              <span className="text-foreground/70 ml-2">(24 reviews)</span>
+            </div>
             
             <p className="text-foreground mb-8 leading-relaxed">
               {featuredProduct.description}
             </p>
             
             <div className="mb-8">
-              <h3 className="text-primary font-medium mb-3">Notes</h3>
-              <div className="flex space-x-8">
-                <div>
-                  <p className="text-sm font-medium text-foreground mb-1">Top</p>
-                  <p className="text-foreground/70 text-sm">Bergamot, Cardamom</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground mb-1">Heart</p>
-                  <p className="text-foreground/70 text-sm">Rose, Saffron</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground mb-1">Base</p>
-                  <p className="text-foreground/70 text-sm">Oud, Amber, Vanilla</p>
-                </div>
-              </div>
+              <p className="text-2xl text-accent font-medium mb-2">{formattedPrice}</p>
+              <p className="text-foreground/70">
+                {featuredProduct.variants.edges.length > 0 ? `Available in ${featuredProduct.variants.edges.length} variants` : 'Out of stock'}
+              </p>
             </div>
             
-            <div className="flex items-center justify-between mb-8">
-              <p className="text-accent text-2xl font-medium">{formattedPrice}</p>
-              
-              <div className="flex items-center space-x-2">
-                <button 
-                  onClick={decreaseQuantity}
-                  className="w-8 h-8 flex items-center justify-center border border-foreground/30 text-foreground hover:border-accent hover:text-accent transition-colors"
-                >
-                  -
-                </button>
-                <span className="w-8 text-center">{quantity}</span>
-                <button 
-                  onClick={increaseQuantity}
-                  className="w-8 h-8 flex items-center justify-center border border-foreground/30 text-foreground hover:border-accent hover:text-accent transition-colors"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <button 
+                className="bg-accent hover:bg-accent/90 text-white py-3 px-10 uppercase tracking-wider text-sm transition-colors"
                 onClick={handleAddToCart}
-                className="flex-grow bg-primary hover:bg-primary/90 text-white px-6 py-3 uppercase tracking-wider text-sm transition-colors"
               >
                 Add to Cart
               </button>
-              <button className="w-12 h-12 flex items-center justify-center border border-foreground/30 text-foreground hover:border-accent hover:text-accent transition-colors">
-                <i className="ri-heart-line text-xl"></i>
-              </button>
+              <Link 
+                href={`/product/${featuredProduct.handle}`} 
+                className="border border-primary text-primary hover:bg-primary hover:text-white py-3 px-10 uppercase tracking-wider text-sm transition-colors text-center"
+              >
+                View Details
+              </Link>
             </div>
           </div>
         </div>

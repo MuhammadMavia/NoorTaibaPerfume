@@ -1,5 +1,8 @@
 import React from "react";
 import HeroSection from "@/components/HeroSection";
+import FeaturedProduct from "@/components/FeaturedProduct";
+import CollectionHighlight from "@/components/CollectionHighlight";
+import ProductShowcase from "@/components/ProductShowcase";
 import StoryCTA from "@/components/StoryCTA";
 import Newsletter from "@/components/Newsletter";
 import { Helmet } from "react-helmet";
@@ -25,6 +28,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <FeaturedProduct />
+      <CollectionHighlight />
+      <ProductShowcase />
       <StoryCTA />
       <Newsletter />
     </>
