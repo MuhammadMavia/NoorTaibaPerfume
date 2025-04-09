@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useLocation as useWouterLocation } from "wouter";
 import { useCart } from "@/context/CartContext";
-import { isLoggedIn, getCurrentCustomer } from "@/lib/shopify";
+import { isLoggedIn, getCurrentCustomer, searchProducts } from "@/lib/shopify";
 import { Customer } from "@/types/shopify";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
