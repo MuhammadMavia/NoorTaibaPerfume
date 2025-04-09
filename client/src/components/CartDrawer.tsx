@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "wouter";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { ShippingRate } from "@/types/shopify";
 
 export default function CartDrawer() {
   const { 
@@ -232,43 +231,15 @@ export default function CartDrawer() {
                 </p>
               </div>
               
-              {/* Shipping Fee */}
-              <div className="flex justify-between mb-2">
-                <span className="text-foreground">Shipping</span>
-                <span className="font-medium">
-                  {cart.cost.totalAmount.currencyCode} {
-                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.[0] 
-                      ? parseFloat((cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).price.amount).toFixed(2)
-                      : "0.00"
-                  }
-                </span>
-              </div>
-              
-              {/* Delivery Info */}
-              {cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.[0] && (
-                <div className="text-xs text-foreground/60 mb-2">
-                  <span>
-                    {(cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).title} • Estimated delivery {" "}
-                    {(cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).estimatedDeliveryRange.min}-
-                    {(cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).estimatedDeliveryRange.max} days
-                  </span>
-                </div>
-              )}
-              
-              {/* Total with Shipping */}
-              <div className="flex justify-between text-lg font-medium mt-4 mb-4 pt-2 border-t border-gray-100">
+              <div className="flex justify-between text-lg font-medium mb-4">
                 <span className="text-primary">Total</span>
                 <span className="text-accent">
-                  {cart.cost.totalAmount.currencyCode} {
-                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.[0]
-                      ? (
-                          parseFloat(cart.cost.totalAmount.amount) + 
-                          parseFloat((cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).price.amount)
-                        ).toFixed(2)
-                      : parseFloat(cart.cost.totalAmount.amount).toFixed(2)
-                  }
+                  {cart.cost.totalAmount.currencyCode} {parseFloat(cart.cost.totalAmount.amount).toFixed(2)}
                 </span>
               </div>
+              <p className="text-foreground/70 text-sm mb-4">
+                Shipping calculated at checkout
+              </p>
               <a href={cart.checkoutUrl} className="block w-full" target="_blank" rel="noopener noreferrer">
                 <button className="w-full bg-accent hover:bg-accent/90 text-white py-3 uppercase tracking-wider text-sm transition-colors">
                   Checkout

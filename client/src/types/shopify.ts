@@ -76,16 +76,6 @@ export interface CartLine {
   };
 }
 
-export interface ShippingRate {
-  handle: string;
-  title: string;
-  price: MoneyV2;
-  estimatedDeliveryRange: {
-    min: string;
-    max: string;
-  };
-}
-
 export interface Cart {
   id: string;
   checkoutUrl: string;
@@ -104,13 +94,6 @@ export interface Cart {
     totalAmount: MoneyV2;
     totalTaxAmount: MoneyV2;
     discountAmount?: MoneyV2;
-  };
-  deliveryGroups?: {
-    edges: {
-      node: {
-        deliveryOptions: ShippingRate[];
-      };
-    }[];
   };
 }
 
@@ -188,13 +171,6 @@ export interface ShopifyCart {
     totalAmount: MoneyV2;
     totalTaxAmount: MoneyV2;
     discountAmount?: MoneyV2;
-  };
-  deliveryGroups?: {
-    edges: {
-      node: {
-        deliveryOptions: ShippingRate[];
-      };
-    }[];
   };
 }
 
