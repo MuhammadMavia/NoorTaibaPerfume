@@ -231,15 +231,25 @@ export default function CartDrawer() {
                 </p>
               </div>
               
-              <div className="flex justify-between text-lg font-medium mb-4">
-                <span className="text-primary">Total</span>
-                <span className="text-accent">
-                  {cart.cost.totalAmount.currencyCode} {parseFloat(cart.cost.totalAmount.amount).toFixed(2)}
+              {/* Shipping Fee */}
+              <div className="flex justify-between mb-2">
+                <span className="text-foreground">Shipping</span>
+                <span className="font-medium">
+                  {cart.cost.totalAmount.currencyCode} {cart.totalQuantity > 0 ? "5.00" : "0.00"}
                 </span>
               </div>
-              <p className="text-foreground/70 text-sm mb-4">
-                Shipping calculated at checkout
-              </p>
+              
+              {/* Total with Shipping */}
+              <div className="flex justify-between text-lg font-medium mt-4 mb-4 pt-2 border-t border-gray-100">
+                <span className="text-primary">Total</span>
+                <span className="text-accent">
+                  {cart.cost.totalAmount.currencyCode} {
+                    cart.totalQuantity > 0 
+                      ? (parseFloat(cart.cost.totalAmount.amount) + 5.00).toFixed(2)
+                      : parseFloat(cart.cost.totalAmount.amount).toFixed(2)
+                  }
+                </span>
+              </div>
               <a href={cart.checkoutUrl} className="block w-full" target="_blank" rel="noopener noreferrer">
                 <button className="w-full bg-accent hover:bg-accent/90 text-white py-3 uppercase tracking-wider text-sm transition-colors">
                   Checkout
