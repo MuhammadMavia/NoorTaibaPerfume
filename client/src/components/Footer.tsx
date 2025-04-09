@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-playfair text-xl mb-6">Noor e Taiba</h3>
+            <img src="../src/assets/logo.png" alt="Noor e Taiba Perfumers Logo" className="h-12 w-auto mb-6" />
             <p className="text-white/70 text-sm leading-relaxed mb-4">
               Luxury fragrances inspired by Arabian heritage and crafted with the finest ingredients.
             </p>
@@ -65,13 +65,7 @@ export default function Footer() {
           <p className="text-white/50 text-sm mb-4 md:mb-0">
             &copy; {new Date().getFullYear()} Noor e Taiba Perfumers. All rights reserved.
           </p>
-          
-          <div className="flex items-center space-x-4">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/shopify/shopify-original.svg" alt="Shopify" className="h-6 w-6 opacity-50" />
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" className="h-6 opacity-50" />
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="Apple Pay" className="h-6 opacity-50" />
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google Pay" className="h-6 opacity-50" />
-          </div>
+        
         </div>
       </div>
     </footer>
