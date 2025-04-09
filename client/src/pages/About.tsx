@@ -32,7 +32,7 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <img 
-                src="https://images.unsplash.com/photo-1593483316242-efb5420596ca?auto=format&fit=crop&q=80&w=600&h=800" 
+                src="../src/assets/hero.jpeg" 
                 alt="Perfume Crafting" 
                 className="w-full h-[500px] object-cover"
               />
