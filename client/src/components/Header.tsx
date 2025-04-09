@@ -166,6 +166,7 @@ export default function Header() {
                         onClick={() => {
                           setShowResults(false);
                           setSearchQuery('');
+                          setLocation(`/product/${product.handle}`);
                         }}
                       >
                         <div className="w-12 h-12 rounded overflow-hidden mr-3">
