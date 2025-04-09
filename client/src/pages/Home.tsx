@@ -13,6 +13,9 @@ import InstagramGallery from "@/components/InstagramGallery";
 import DiscountsSection from "@/components/DiscountsSection";
 import { Helmet } from "react-helmet";
 
+// Import hero image from assets
+import heroImage from "../assets/hero-background.svg";
+
 export default function Home() {
   return (
     <>
@@ -24,7 +27,7 @@ export default function Home() {
       <HeroSection 
         title="Discover the Art of Luxury Perfumery"
         subtitle="Exquisite fragrances that capture the essence of Arabian tradition with modern elegance"
-        imageUrl="https://images.unsplash.com/photo-1593483592239-795639d8a7bb?auto=format&fit=crop&q=80&w=1920&h=1080"
+        imageUrl={heroImage}
         buttonText="Shop Collection"
         buttonLink="/collections"
       />

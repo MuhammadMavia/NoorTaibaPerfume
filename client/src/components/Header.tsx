@@ -6,6 +6,9 @@ import { Customer } from "@/types/shopify";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
 
+// Import logo image from assets
+import logoImage from "../assets/logo.svg";
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
@@ -62,12 +65,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex-grow md:flex-grow-0 text-center md:text-left">
             <Link href="/" className="inline-block">
-              <h1 className="font-playfair text-2xl md:text-3xl font-semibold tracking-wide text-primary">
-                Noor e Taiba
-              </h1>
-              <p className="text-xs uppercase tracking-widest text-foreground/70">
-                Perfumers
-              </p>
+              <img src={logoImage} alt="Noor e Taiba Perfumers Logo" className="h-12 w-auto" />
             </Link>
           </div>
           
