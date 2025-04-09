@@ -17,7 +17,23 @@ export default function Header() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const [, setLocation] = useWouterLocation();
+  
+  // Click outside handler
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target as Element).closest('.search-container')) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   // Use Cart context
   const { totalItems, toggleCart } = useCart();
@@ -110,18 +126,67 @@ export default function Header() {
           {/* Icons */}
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-40 md:w-64 px-3 py-1 border border-foreground/20 focus:outline-none focus:border-accent rounded-full text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && searchQuery.trim()) {
-                    setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
-                  }
-                }}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="w-40 md:w-64 px-3 py-1 border border-foreground/20 focus:outline-none focus:border-accent rounded-full text-sm"
+                  value={searchQuery}
+                  onChange={async (e) => {
+                    const query = e.target.value;
+                    setSearchQuery(query);
+                    if (query.trim().length >= 2) {
+                      const results = await searchProducts(query);
+                      setSearchResults(results.slice(0, 5));
+                      setShowResults(true);
+                    } else {
+                      setSearchResults([]);
+                      setShowResults(false);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
+                      setShowResults(false);
+                    }
+                  }}
+                  onFocus={() => {
+                    if (searchResults.length > 0) {
+                      setShowResults(true);
+                    }
+                  }}
+                />
+                {showResults && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md overflow-hidden z-50">
+                    {searchResults.map((product) => (
+                      <Link
+                        key={product.id}
+                        href={`/product/${product.handle}`}
+                        className="flex items-center p-3 hover:bg-accent/5 transition-colors"
+                        onClick={() => {
+                          setShowResults(false);
+                          setSearchQuery('');
+                        }}
+                      >
+                        <div className="w-12 h-12 rounded overflow-hidden mr-3">
+                          <img
+                            src={product.images.edges[0]?.node.url || "https://via.placeholder.com/48"}
+                            alt={product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-primary">{product.title}</h4>
+                          <p className="text-xs text-accent">
+                            {product.priceRange.minVariantPrice.currencyCode}{' '}
+                            {parseFloat(product.priceRange.minVariantPrice.amount).toFixed(2)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button 
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-primary hover:text-accent transition-colors"
                 onClick={() => {
