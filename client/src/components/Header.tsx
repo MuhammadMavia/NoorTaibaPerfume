@@ -19,13 +19,15 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Array<Product>>([]);
   const [showResults, setShowResults] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(false); // Added state to control search bar visibility
   const [, setLocation] = useWouterLocation();
-  
+
   // Click outside handler
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!(event.target as Element).closest('.search-container')) {
         setShowResults(false);
+        setShowSearchBar(false); // Hide search bar when clicking outside
       }
     };
 
@@ -34,17 +36,17 @@ export default function Header() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  
+
   // Use Cart context
   const { totalItems, toggleCart } = useCart();
-  
+
   // Check authentication status on component mount
   useEffect(() => {
     const checkAuth = async () => {
       setIsLoading(true);
       const authenticated = isLoggedIn();
       setIsAuthenticated(authenticated);
-      
+
       if (authenticated) {
         try {
           const customerData = await getCurrentCustomer();
@@ -55,14 +57,14 @@ export default function Header() {
       }
       setIsLoading(false);
     };
-    
+
     checkAuth();
   }, [location]); // Re-check when location changes to update after login/logout
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  
+
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
@@ -79,14 +81,14 @@ export default function Header() {
           >
             <i className="ri-menu-line text-2xl"></i>
           </button>
-          
+
           {/* Logo */}
           <div className="flex-grow md:flex-grow-0 text-center md:text-left">
             <Link href="/" className="inline-block">
               <img src={logoImage} alt="Noor e Taiba Perfumers Logo" className="h-12 w-auto" />
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link 
@@ -122,83 +124,85 @@ export default function Header() {
               Contact
             </Link>
           </nav>
-          
+
           {/* Icons */}
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-40 md:w-64 px-3 py-1 border border-foreground/20 focus:outline-none focus:border-accent rounded-full text-sm"
-                  value={searchQuery}
-                  onChange={async (e) => {
-                    const query = e.target.value;
-                    setSearchQuery(query);
-                    if (query.trim().length >= 2) {
-                      const results = await searchProducts(query);
-                      setSearchResults(results.slice(0, 5));
-                      setShowResults(true);
-                    } else {
-                      setSearchResults([]);
-                      setShowResults(false);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && searchQuery.trim()) {
-                      setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
-                      setShowResults(false);
-                    }
-                  }}
-                  onFocus={() => {
-                    if (searchResults.length > 0) {
-                      setShowResults(true);
-                    }
-                  }}
-                />
-                {showResults && searchResults.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md overflow-hidden z-50">
-                    {searchResults.map((product) => (
-                      <Link
-                        key={product.id}
-                        href={`/product/${product.handle}`}
-                        className="flex items-center p-3 hover:bg-accent/5 transition-colors"
-                        onClick={() => {
-                          setShowResults(false);
-                          setSearchQuery('');
-                          setLocation(`/product/${product.handle}`);
-                        }}
-                      >
-                        <div className="w-12 h-12 rounded overflow-hidden mr-3">
-                          <img
-                            src={product.images.edges[0]?.node.url || "https://via.placeholder.com/48"}
-                            alt={product.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-medium text-primary">{product.title}</h4>
-                          <p className="text-xs text-accent">
-                            {product.priceRange.minVariantPrice.currencyCode}{' '}
-                            {parseFloat(product.priceRange.minVariantPrice.amount).toFixed(2)}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <div className="relative search-container"> {/* Added class for click outside */}
               <button 
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-primary hover:text-accent transition-colors"
-                onClick={() => {
-                  if (searchQuery.trim()) {
-                    setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
-                  }
-                }}
+                onClick={() => setShowSearchBar(!showSearchBar)} // Toggle search bar visibility
                 aria-label="Search"
               >
                 <i className="ri-search-line text-xl"></i>
               </button>
+              {showSearchBar && ( // Conditionally render the search bar
+                <div className="relative">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search products..."
+                      className="w-40 md:w-64 px-3 py-1 border border-foreground/20 focus:outline-none focus:border-accent rounded-full text-sm"
+                      value={searchQuery}
+                      onChange={async (e) => {
+                        const query = e.target.value;
+                        setSearchQuery(query);
+                        if (query.trim().length >= 2) {
+                          const results = await searchProducts(query);
+                          setSearchResults(results.slice(0, 5));
+                          setShowResults(true);
+                        } else {
+                          setSearchResults([]);
+                          setShowResults(false);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && searchQuery.trim()) {
+                          setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
+                          setShowResults(false);
+                          setShowSearchBar(false); // Hide after search
+                        }
+                      }}
+                      onFocus={() => {
+                        if (searchResults.length > 0) {
+                          setShowResults(true);
+                        }
+                      }}
+                    />
+                    {showResults && searchResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md overflow-hidden z-50">
+                        {searchResults.map((product) => (
+                          <Link
+                            key={product.id}
+                            href={`/product/${product.handle}`}
+                            className="flex items-center p-3 hover:bg-accent/5 transition-colors"
+                            onClick={() => {
+                              setShowResults(false);
+                              setSearchQuery('');
+                              setLocation(`/product/${product.handle}`);
+                              setShowSearchBar(false); // Hide after selection
+                            }}
+                          >
+                            <div className="w-12 h-12 rounded overflow-hidden mr-3">
+                              <img
+                                src={product.images.edges[0]?.node.url || "https://via.placeholder.com/48"}
+                                alt={product.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-medium text-primary">{product.title}</h4>
+                              <p className="text-xs text-accent">
+                                {product.priceRange.minVariantPrice.currencyCode}{' '}
+                                {parseFloat(product.priceRange.minVariantPrice.amount).toFixed(2)}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
             {isLoading ? (
               <div className="w-6 h-6 flex items-center justify-center">
@@ -282,7 +286,7 @@ export default function Header() {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       <div 
         className={`md:hidden transition-[height,opacity] duration-300 ease-in-out overflow-hidden bg-white border-t border-gray-100 ${
@@ -318,7 +322,7 @@ export default function Header() {
           >
             Contact
           </Link>
-          
+
           {/* Authentication Links for Mobile */}
           {isAuthenticated ? (
             <>
