@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useLocation as useWouterLocation } from "wouter";
 import { useCart } from "@/context/CartContext";
 import { isLoggedIn, getCurrentCustomer } from "@/lib/shopify";
 import { Customer } from "@/types/shopify";
@@ -16,6 +16,8 @@ export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [, setLocation] = useWouterLocation();
   
   // Use Cart context
   const { totalItems, toggleCart } = useCart();
@@ -107,12 +109,31 @@ export default function Header() {
           
           {/* Icons */}
           <div className="flex items-center space-x-4">
-            <button 
-              className="text-primary hover:text-accent transition-colors"
-              aria-label="Search"
-            >
-              <i className="ri-search-line text-xl"></i>
-            </button>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="w-40 md:w-64 px-3 py-1 border border-foreground/20 focus:outline-none focus:border-accent rounded-full text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
+                    setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
+                  }
+                }}
+              />
+              <button 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-primary hover:text-accent transition-colors"
+                onClick={() => {
+                  if (searchQuery.trim()) {
+                    setLocation(`/collections?q=${encodeURIComponent(searchQuery.trim())}`);
+                  }
+                }}
+                aria-label="Search"
+              >
+                <i className="ri-search-line text-xl"></i>
+              </button>
+            </div>
             {isLoading ? (
               <div className="w-6 h-6 flex items-center justify-center">
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
