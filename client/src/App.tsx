@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import About from './pages/About';
 import { CartProvider } from "./context/CartContext";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/account" component={Account} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/about" component={About} />
       <Route component={NotFound} />
     </Switch>
   );
