@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Loader2 } from "lucide-react";
 
 // Import logo image from assets
-import logoImage from "../assets/logo.svg";
+import logoImage from "../assets/logo.png";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
