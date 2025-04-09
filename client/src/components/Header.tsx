@@ -233,19 +233,7 @@ export default function Header() {
                       My Account
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/account" className="cursor-pointer">
-                      Order History
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => {
-                      isLoggedIn() && navigate("/account");
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Settings
-                  </DropdownMenuItem>
+                  
                   <DropdownMenuItem 
                     onClick={() => {
                       // Logout and redirect to home
