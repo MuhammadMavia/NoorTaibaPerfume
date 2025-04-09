@@ -434,28 +434,20 @@ export async function getCart(cartId: string): Promise<Cart | null> {
             amount
             currencyCode
           }
-          discountAmount {
-            amount
-            currencyCode
-          }
         }
         deliveryGroups(first: 1) {
           edges {
             node {
-              deliveryOptions(first: 5) {
-                edges {
-                  node {
-                    handle
-                    title
-                    price {
-                      amount
-                      currencyCode
-                    }
-                    deliveryRange {
-                      min
-                      max
-                    }
-                  }
+              deliveryOptions {
+                handle
+                title
+                price {
+                  amount
+                  currencyCode
+                }
+                estimatedDeliveryRange {
+                  min
+                  max
                 }
               }
             }
@@ -528,28 +520,20 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
               amount
               currencyCode
             }
-            discountAmount {
-              amount
-              currencyCode
-            }
           }
           deliveryGroups(first: 1) {
             edges {
               node {
-                deliveryOptions(first: 5) {
-                  edges {
-                    node {
-                      handle
-                      title
-                      price {
-                        amount
-                        currencyCode
-                      }
-                      deliveryRange {
-                        min
-                        max
-                      }
-                    }
+                deliveryOptions {
+                  handle
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  estimatedDeliveryRange {
+                    min
+                    max
                   }
                 }
               }
@@ -622,28 +606,20 @@ export async function updateCartItems(cartId: string, lines: { id: string; quant
               amount
               currencyCode
             }
-            discountAmount {
-              amount
-              currencyCode
-            }
           }
           deliveryGroups(first: 1) {
             edges {
               node {
-                deliveryOptions(first: 5) {
-                  edges {
-                    node {
-                      handle
-                      title
-                      price {
-                        amount
-                        currencyCode
-                      }
-                      deliveryRange {
-                        min
-                        max
-                      }
-                    }
+                deliveryOptions {
+                  handle
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  estimatedDeliveryRange {
+                    min
+                    max
                   }
                 }
               }
@@ -716,28 +692,20 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
               amount
               currencyCode
             }
-            discountAmount {
-              amount
-              currencyCode
-            }
           }
           deliveryGroups(first: 1) {
             edges {
               node {
-                deliveryOptions(first: 5) {
-                  edges {
-                    node {
-                      handle
-                      title
-                      price {
-                        amount
-                        currencyCode
-                      }
-                      deliveryRange {
-                        min
-                        max
-                      }
-                    }
+                deliveryOptions {
+                  handle
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  estimatedDeliveryRange {
+                    min
+                    max
                   }
                 }
               }
@@ -1339,28 +1307,20 @@ export async function applyDiscountCode(cartId: string, discountCode: string): P
               amount
               currencyCode
             }
-            discountAmount {
-              amount
-              currencyCode
-            }
           }
           deliveryGroups(first: 1) {
             edges {
               node {
-                deliveryOptions(first: 5) {
-                  edges {
-                    node {
-                      handle
-                      title
-                      price {
-                        amount
-                        currencyCode
-                      }
-                      deliveryRange {
-                        min
-                        max
-                      }
-                    }
+                deliveryOptions {
+                  handle
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  estimatedDeliveryRange {
+                    min
+                    max
                   }
                 }
               }

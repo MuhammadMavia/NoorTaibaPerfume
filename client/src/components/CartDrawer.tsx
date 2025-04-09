@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "wouter";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { ShippingRate } from "@/types/shopify";
 
 export default function CartDrawer() {
   const { 
@@ -236,20 +237,20 @@ export default function CartDrawer() {
                 <span className="text-foreground">Shipping</span>
                 <span className="font-medium">
                   {cart.cost.totalAmount.currencyCode} {
-                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.edges?.[0]?.node 
-                      ? parseFloat(cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.price.amount).toFixed(2)
+                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.[0] 
+                      ? parseFloat((cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).price.amount).toFixed(2)
                       : "0.00"
                   }
                 </span>
               </div>
               
               {/* Delivery Info */}
-              {cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.edges?.[0]?.node && (
+              {cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.[0] && (
                 <div className="text-xs text-foreground/60 mb-2">
                   <span>
-                    {cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.title} • Estimated delivery {" "}
-                    {cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.deliveryRange.min}-
-                    {cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.deliveryRange.max} days
+                    {(cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).title} • Estimated delivery {" "}
+                    {(cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).estimatedDeliveryRange.min}-
+                    {(cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).estimatedDeliveryRange.max} days
                   </span>
                 </div>
               )}
@@ -259,10 +260,10 @@ export default function CartDrawer() {
                 <span className="text-primary">Total</span>
                 <span className="text-accent">
                   {cart.cost.totalAmount.currencyCode} {
-                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.edges?.[0]?.node
+                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.[0]
                       ? (
                           parseFloat(cart.cost.totalAmount.amount) + 
-                          parseFloat(cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.price.amount)
+                          parseFloat((cart.deliveryGroups.edges[0].node.deliveryOptions[0] as ShippingRate).price.amount)
                         ).toFixed(2)
                       : parseFloat(cart.cost.totalAmount.amount).toFixed(2)
                   }

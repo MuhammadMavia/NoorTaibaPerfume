@@ -80,7 +80,7 @@ export interface ShippingRate {
   handle: string;
   title: string;
   price: MoneyV2;
-  deliveryRange: {
+  estimatedDeliveryRange: {
     min: string;
     max: string;
   };
@@ -108,11 +108,7 @@ export interface Cart {
   deliveryGroups?: {
     edges: {
       node: {
-        deliveryOptions: {
-          edges: {
-            node: ShippingRate;
-          }[];
-        };
+        deliveryOptions: ShippingRate[];
       };
     }[];
   };
@@ -196,11 +192,7 @@ export interface ShopifyCart {
   deliveryGroups?: {
     edges: {
       node: {
-        deliveryOptions: {
-          edges: {
-            node: ShippingRate;
-          }[];
-        };
+        deliveryOptions: ShippingRate[];
       };
     }[];
   };
