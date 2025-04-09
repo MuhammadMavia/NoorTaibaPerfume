@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useLocation as useWouterLocation } from "wouter";
 import { useCart } from "@/context/CartContext";
 import { isLoggedIn, getCurrentCustomer, searchProducts } from "@/lib/shopify";
-import { Customer } from "@/types/shopify";
+import { Customer, Product } from "@/types/shopify";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Loader2 } from "lucide-react";
 
@@ -17,7 +17,7 @@ export default function Header() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searchResults, setSearchResults] = useState<Array<Product>>([]);
   const [showResults, setShowResults] = useState(false);
   const [, setLocation] = useWouterLocation();
   
