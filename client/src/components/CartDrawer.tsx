@@ -235,17 +235,35 @@ export default function CartDrawer() {
               <div className="flex justify-between mb-2">
                 <span className="text-foreground">Shipping</span>
                 <span className="font-medium">
-                  {cart.cost.totalAmount.currencyCode} {cart.totalQuantity > 0 ? "5.00" : "0.00"}
+                  {cart.cost.totalAmount.currencyCode} {
+                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.edges?.[0]?.node 
+                      ? parseFloat(cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.price.amount).toFixed(2)
+                      : "0.00"
+                  }
                 </span>
               </div>
+              
+              {/* Delivery Info */}
+              {cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.edges?.[0]?.node && (
+                <div className="text-xs text-foreground/60 mb-2">
+                  <span>
+                    {cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.title} • Estimated delivery {" "}
+                    {cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.deliveryRange.min}-
+                    {cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.deliveryRange.max} days
+                  </span>
+                </div>
+              )}
               
               {/* Total with Shipping */}
               <div className="flex justify-between text-lg font-medium mt-4 mb-4 pt-2 border-t border-gray-100">
                 <span className="text-primary">Total</span>
                 <span className="text-accent">
                   {cart.cost.totalAmount.currencyCode} {
-                    cart.totalQuantity > 0 
-                      ? (parseFloat(cart.cost.totalAmount.amount) + 5.00).toFixed(2)
+                    cart.totalQuantity > 0 && cart.deliveryGroups?.edges?.[0]?.node?.deliveryOptions?.edges?.[0]?.node
+                      ? (
+                          parseFloat(cart.cost.totalAmount.amount) + 
+                          parseFloat(cart.deliveryGroups.edges[0].node.deliveryOptions.edges[0].node.price.amount)
+                        ).toFixed(2)
                       : parseFloat(cart.cost.totalAmount.amount).toFixed(2)
                   }
                 </span>

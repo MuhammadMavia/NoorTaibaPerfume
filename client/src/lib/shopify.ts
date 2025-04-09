@@ -389,6 +389,10 @@ export async function getCart(cartId: string): Promise<Cart | null> {
         id
         checkoutUrl
         totalQuantity
+        discountCodes {
+          code
+          applicable
+        }
         lines(first: 100) {
           edges {
             node {
@@ -430,6 +434,32 @@ export async function getCart(cartId: string): Promise<Cart | null> {
             amount
             currencyCode
           }
+          discountAmount {
+            amount
+            currencyCode
+          }
+        }
+        deliveryGroups(first: 1) {
+          edges {
+            node {
+              deliveryOptions(first: 5) {
+                edges {
+                  node {
+                    handle
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    deliveryRange {
+                      min
+                      max
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -438,7 +468,8 @@ export async function getCart(cartId: string): Promise<Cart | null> {
   try {
     const response = await shopifyFetch<{ cart: Cart }>({ query, variables: { cartId } });
     return response.cart;
-  } catch {
+  } catch (error) {
+    console.error('Error getting cart:', error);
     return null;
   }
 }
@@ -452,6 +483,10 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
           id
           checkoutUrl
           totalQuantity
+          discountCodes {
+            code
+            applicable
+          }
           lines(first: 100) {
             edges {
               node {
@@ -492,6 +527,32 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
             totalTaxAmount {
               amount
               currencyCode
+            }
+            discountAmount {
+              amount
+              currencyCode
+            }
+          }
+          deliveryGroups(first: 1) {
+            edges {
+              node {
+                deliveryOptions(first: 5) {
+                  edges {
+                    node {
+                      handle
+                      title
+                      price {
+                        amount
+                        currencyCode
+                      }
+                      deliveryRange {
+                        min
+                        max
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -516,6 +577,10 @@ export async function updateCartItems(cartId: string, lines: { id: string; quant
           id
           checkoutUrl
           totalQuantity
+          discountCodes {
+            code
+            applicable
+          }
           lines(first: 100) {
             edges {
               node {
@@ -556,6 +621,32 @@ export async function updateCartItems(cartId: string, lines: { id: string; quant
             totalTaxAmount {
               amount
               currencyCode
+            }
+            discountAmount {
+              amount
+              currencyCode
+            }
+          }
+          deliveryGroups(first: 1) {
+            edges {
+              node {
+                deliveryOptions(first: 5) {
+                  edges {
+                    node {
+                      handle
+                      title
+                      price {
+                        amount
+                        currencyCode
+                      }
+                      deliveryRange {
+                        min
+                        max
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -580,6 +671,10 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
           id
           checkoutUrl
           totalQuantity
+          discountCodes {
+            code
+            applicable
+          }
           lines(first: 100) {
             edges {
               node {
@@ -620,6 +715,32 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
             totalTaxAmount {
               amount
               currencyCode
+            }
+            discountAmount {
+              amount
+              currencyCode
+            }
+          }
+          deliveryGroups(first: 1) {
+            edges {
+              node {
+                deliveryOptions(first: 5) {
+                  edges {
+                    node {
+                      handle
+                      title
+                      price {
+                        amount
+                        currencyCode
+                      }
+                      deliveryRange {
+                        min
+                        max
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -1217,6 +1338,32 @@ export async function applyDiscountCode(cartId: string, discountCode: string): P
             totalTaxAmount {
               amount
               currencyCode
+            }
+            discountAmount {
+              amount
+              currencyCode
+            }
+          }
+          deliveryGroups(first: 1) {
+            edges {
+              node {
+                deliveryOptions(first: 5) {
+                  edges {
+                    node {
+                      handle
+                      title
+                      price {
+                        amount
+                        currencyCode
+                      }
+                      deliveryRange {
+                        min
+                        max
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
