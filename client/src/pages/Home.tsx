@@ -14,7 +14,7 @@ import DiscountsSection from "@/components/DiscountsSection";
 import { Helmet } from "react-helmet";
 
 // Import hero image from assets
-import heroImage from "../assets/hero-background.svg";
+import heroImage from "../assets/hero.jpeg";
 
 export default function Home() {
   return (
